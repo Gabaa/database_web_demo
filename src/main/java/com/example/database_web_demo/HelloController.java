@@ -20,8 +20,7 @@ public class HelloController {
         StringBuilder sb = new StringBuilder();
 
         jdbcTemplate.query(
-                "SELECT id, first_name, last_name FROM customers WHERE first_name = ?",
-                new Object[]{"Josh"},
+                "SELECT id, first_name, last_name FROM customers",
                 (rs, rowNum) -> new Customer(
                         rs.getLong("id"),
                         rs.getString("first_name"),
