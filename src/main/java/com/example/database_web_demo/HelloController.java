@@ -17,10 +17,34 @@ public class HelloController {
 
     @RequestMapping("/")
     public String index() {
+        StringBuilder sb = new StringBuilder();
+
+        jdbcTemplate.query(
+                "SELECT id, first_name, last_name FROM customers WHERE first_name = ?",
+                new Object[]{"Josh"},
+                (rs, rowNum) -> new Customer(
+                        rs.getLong("id"),
+                        rs.getString("first_name"),
+                        rs.getString("last_name")))
+                .forEach(customer -> {
+                    sb.append(customer.toString());
+                    sb.append(" | ");
+                });
+
+        return sb.toString();
+    }
+
+    @RequestMapping("/drop")
+    public String drop() {
         jdbcTemplate.execute("DROP TABLE IF EXISTS customers");
         jdbcTemplate.execute("CREATE TABLE customers(" +
                 "id SERIAL, first_name VARCHAR(255), last_name VARCHAR(255))");
 
+        return "Tables dropped!";
+    }
+
+    @RequestMapping("/insert")
+    public String insert() {
         // Split up the array of whole names into an array of first/last names
         List<Object[]> splitUpNames = Stream.of("John Woo", "Jeff Dean", "Josh Bloch", "Josh Long")
                 .map(name -> name.split(" "))
@@ -29,21 +53,7 @@ public class HelloController {
         // Uses JdbcTemplate's batchUpdate operation to bulk load data
         jdbcTemplate.batchUpdate("INSERT INTO customers(first_name, last_name) VALUES (?,?)", splitUpNames);
 
-        StringBuilder stringBuilder = new StringBuilder();
-
-        jdbcTemplate.query(
-                "SELECT id, first_name, last_name FROM customers WHERE first_name = ?",
-                new Object[]{"Josh"},
-                (rs, rowNum) -> new Customer(
-                        rs.getLong("id"),
-                        rs.getString("first_name"), rs.getString("last_name")
-                )
-        ).forEach(customer -> {
-            stringBuilder.append(customer.toString());
-            stringBuilder.append("\n");
-        });
-
-        return stringBuilder.toString();
+        return "Test names inserted!";
     }
 
 }
