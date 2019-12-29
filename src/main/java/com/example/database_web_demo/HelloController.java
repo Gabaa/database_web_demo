@@ -1,56 +1,43 @@
 package com.example.database_web_demo;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
+import com.example.database_web_demo.repository.CustomerRepository;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @RestController
 public class HelloController {
 
-    @Autowired
-    JdbcTemplate jdbcTemplate;
+    private final CustomerRepository repository;
+
+    public HelloController(CustomerRepository repository) {
+        this.repository = repository;
+    }
 
     @RequestMapping("/")
     public String index() {
         StringBuilder sb = new StringBuilder();
 
-        jdbcTemplate.query(
-                "SELECT id, first_name, last_name FROM customers",
-                (rs, rowNum) -> new Customer(
-                        rs.getLong("id"),
-                        rs.getString("first_name"),
-                        rs.getString("last_name")))
-                .forEach(customer -> {
-                    sb.append(customer.toString());
-                    sb.append(" | ");
-                });
+        for (Customer customer : repository.findAll()) {
+            sb.append(customer.toString()).append(" | ");
+        }
 
         return sb.toString();
     }
 
-    @RequestMapping("/drop")
+    @RequestMapping("/clear")
     public String drop() {
-        jdbcTemplate.execute("DROP TABLE IF EXISTS customers");
-        jdbcTemplate.execute("CREATE TABLE customers(" +
-                "id SERIAL, first_name VARCHAR(255), last_name VARCHAR(255))");
+        repository.deleteAll();
 
-        return "Tables dropped!";
+        return "Removed all entries!";
     }
 
     @RequestMapping("/insert")
     public String insert() {
-        // Split up the array of whole names into an array of first/last names
-        List<Object[]> splitUpNames = Stream.of("John Woo", "Jeff Dean", "Josh Bloch", "Josh Long")
-                .map(name -> name.split(" "))
-                .collect(Collectors.toList());
-
-        // Uses JdbcTemplate's batchUpdate operation to bulk load data
-        jdbcTemplate.batchUpdate("INSERT INTO customers(first_name, last_name) VALUES (?,?)", splitUpNames);
+        repository.save(new Customer("Jack", "Bauer"));
+        repository.save(new Customer("Chloe", "O'Brian"));
+        repository.save(new Customer("Kim", "Bauer"));
+        repository.save(new Customer("David", "Palmer"));
+        repository.save(new Customer("Michelle", "Dessler"));
 
         return "Test names inserted!";
     }
