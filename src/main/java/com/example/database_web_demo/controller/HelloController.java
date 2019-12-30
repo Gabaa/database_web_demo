@@ -1,5 +1,6 @@
-package com.example.database_web_demo;
+package com.example.database_web_demo.controller;
 
+import com.example.database_web_demo.Customer;
 import com.example.database_web_demo.repository.CustomerRepository;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
