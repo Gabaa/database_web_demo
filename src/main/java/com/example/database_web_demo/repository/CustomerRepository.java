@@ -1,6 +1,6 @@
 package com.example.database_web_demo.repository;
 
-import com.example.database_web_demo.Customer;
+import com.example.database_web_demo.model.Customer;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;

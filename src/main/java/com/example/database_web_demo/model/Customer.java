@@ -1,4 +1,4 @@
-package com.example.database_web_demo;
+package com.example.database_web_demo.model;
 
 import lombok.Getter;
 
